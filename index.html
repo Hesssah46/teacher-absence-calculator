@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب نسبة الغياب الذكي</title>
+    <style>
+        /* ========================================== */
+        /* هنا كود التصميم والألوان (CSS) لجعل الموقع فخماً */
+        /* ========================================== */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        :root {
+            --primary: #1f4e78;
+            --primary-light: #2f5597;
+            --accent: #1ba39c;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #d9e1f2;
+            --error: #e05252;
+            --success: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(31, 78, 120, 0.08);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(27, 163, 156, 0.1);
+        }
+
+        .days-badge {
+            display: block;
+            background-color: #e8f4f3;
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 8px;
+            text-align: center;
+            border: 1px solid rgba(27, 163, 156, 0.2);
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .result-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .result-status {
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>حساب نسبة الغياب</h1>
+    </div>
+
+    <div class="content">
+        <div class="form-group">
+            <label for="monthSelect">اختر الشهر الهجري:</label>
+            <select id="monthSelect">
+                <option value="" disabled selected>-- اضغط لاختيار الشهر --</option>
+                <option value="22">ربيع الأول 1447هـ</option>
+                <option value="20">ربيع الآخر 1447هـ</option>
+                <option value="21">جمادى الأولى 1447هـ</option>
+                <option value="13">جمادى الآخرة 1447هـ</option>
+                <option value="17">رجب 1447هـ</option>
+                <option value="21">شعبان 1447هـ</option>
+                <option value="11">رمضان 1447هـ</option>
+                <option value="15">شوال 1447هـ</option>
+                <option value="21">ذو القعدة 1447هـ</option>
+                <option value="14">ذو الحجة 1447هـ</option>
+                <option value="7">محرم 1448هـ</option>
+            </select>
+            <div id="workingDaysDisplay" class="days-badge" style="display: none;">
+                أيام الدوام الفعلية لهذا الشهر: <span id="daysCount">0</span> يوم تلقائياً
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="absenceInput">ادخل عدد الغياب:</label>
+            <input type="number" id="absenceInput" min="0" placeholder="مثال: 10" disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="employeesInput">ادخل عدد الموظفين:</label>
+            <input type="number" id="employeesInput" min="1" placeholder="مثال: 15" disabled>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <div class="result-label">نسبة الغياب الإجمالية للشهر</div>
+            <div class="result-value" id="resultValue">0%</div>
+            <div class="result-status" id="resultStatus">يرجى اختيار الشهر وتعبئة البيانات</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const monthSelect = document.getElementById('monthSelect');
+    const workingDaysDisplay = document.getElementById('workingDaysDisplay');
+    const daysCount = document.getElementById('daysCount');
+    const absenceInput = document.getElementById('absenceInput');
+    const employeesInput = document.getElementById('employeesInput');
+    const resultCard = document.getElementById('resultCard');
+    const resultValue = document.getElementById('resultValue');
+    const resultStatus = document.getElementById('resultStatus');
+
+    let actualWorkingDays = 0;
+
+    monthSelect.addEventListener('change', function() {
+        actualWorkingDays = parseInt(this.value);
+        daysCount.textContent = actualWorkingDays;
+        workingDaysDisplay.style.display = 'block';
+        absenceInput.disabled = false;
+        employeesInput.disabled = false;
+        calculatePercentage();
+    });
+
+    absenceInput.addEventListener('input', calculatePercentage);
+    employeesInput.addEventListener('input', calculatePercentage);
+
+    function calculatePercentage() {
+        const absences = parseFloat(absenceInput.value);
+        const employees = parseFloat(employeesInput.value);
+        
+        if (isNaN(absences) || isNaN(employees) || employees <= 0 || actualWorkingDays <= 0) {
+            resultValue.textContent = "0%";
+            resultStatus.textContent = "يرجى تعبئة البيانات بشكل صحيح";
+            resultCard.style.borderTop = "1px solid var(--border)";
+            return;
+        }
+
+        const totalDays = actualWorkingDays * employees;
+        const percentage = (absences / totalDays) * 100;
+        resultValue.textContent = percentage.toFixed(2) + "%";
+
+        if (percentage <= 5) {
+            resultStatus.textContent = "المعدل في النطق الطبيعي (ممتاز) ✔️";
+            resultValue.style.color = "var(--success)";
+            resultCard.style.borderTop = "4px solid var(--success)";
+        } else if (percentage <= 12) {
+            resultStatus.textContent = "معدل غياب متوسط (مقبول) ⚠️";
+            resultValue.style.color = "#f39c12";
+            resultCard.style.borderTop = "4px solid #f39c12";
+        } else {
+            resultStatus.textContent = "معدل غياب مرتفع! 🚨";
+            resultValue.style.color = "var(--error)";
+            resultCard.style.borderTop = "4px solid var(--error)";
+        }
+    }
+</script>
+
+</body>
+</html>
